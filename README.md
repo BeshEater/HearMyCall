@@ -1,2 +1,2 @@
 # ShoutApp
-Simple Android app to quick message people around you
+Simple Android app for quick messaging with people around you 
