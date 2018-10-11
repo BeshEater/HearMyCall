@@ -1,2 +1,2 @@
-# ShoutApp
-Simple Android app for quick messaging with people around you 
+# HearMyCall
+Simple Android app for quick asking people around you
