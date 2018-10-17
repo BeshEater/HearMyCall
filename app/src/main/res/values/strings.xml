@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Hear My Call</string>
+    <string name="name_hint">Name of your Avatar</string>
+    <string name="avatar_hint">^ Tap image to chose ^</string>
+    <string name="call_button">Look Around</string>
+    <string name="invisible">Invisible for others</string>
+    <string name="title_activity_maps">Map</string>
+</resources>

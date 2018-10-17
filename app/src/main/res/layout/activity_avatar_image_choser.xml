@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".AvatarImageChoser">
+
+    <ImageButton
+        android:id="@+id/face10"
+        android:layout_width="100dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:background="@null"
+        android:onClick="onFaceButtonClick"
+        android:scaleType="centerCrop"
+        android:tag="emoji_upside_down_face"
+        app:layout_constraintDimensionRatio="h,1:1"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/face7"
+        app:srcCompat="@drawable/emoji_upside_down_face" />
+
+    <ImageButton
+        android:id="@+id/face9"
+        android:layout_width="100dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:background="@null"
+        android:onClick="onFaceButtonClick"
+        android:scaleType="centerCrop"
+        android:tag="emoji_tongue_out_with_winking_eye"
+        app:layout_constraintDimensionRatio="h,1:1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/face8"
+        app:layout_constraintTop_toBottomOf="@+id/face6"
+        app:srcCompat="@drawable/emoji_tongue_out_with_winking_eye" />
+
+    <ImageButton
+        android:id="@+id/face8"
+        android:layout_width="100dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:background="@null"
+        android:onClick="onFaceButtonClick"
+        android:scaleType="centerCrop"
+        android:tag="emoji_smiling_with_eyes_opened"
+        app:layout_constraintDimensionRatio="h,1:1"
+        app:layout_constraintEnd_toStartOf="@+id/face9"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/face7"
+        app:layout_constraintTop_toBottomOf="@+id/face5"
+        app:srcCompat="@drawable/emoji_smiling_with_eyes_opened" />
+
+    <ImageButton
+        android:id="@+id/face7"
+        android:layout_width="100dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:background="@null"
+        android:onClick="onFaceButtonClick"
+        android:scaleType="centerCrop"
+        android:tag="emoji_smiling_face_with_blushed_cheeks"
+        app:layout_constraintDimensionRatio="h,1:1"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/face4"
+        app:srcCompat="@drawable/emoji_smiling_face_with_blushed_cheeks" />
+
+    <ImageButton
+        android:id="@+id/face6"
+        android:layout_width="100dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:background="@null"
+        android:onClick="onFaceButtonClick"
+        android:scaleType="centerCrop"
+        android:tag="emoji_slightly_smiling_face"
+        app:layout_constraintDimensionRatio="h,1:1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/face5"
+        app:layout_constraintTop_toBottomOf="@+id/face3"
+        app:srcCompat="@drawable/emoji_slightly_smiling_face" />
+
+    <ImageButton
+        android:id="@+id/face4"
+        android:layout_width="100dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:background="@null"
+        android:onClick="onFaceButtonClick"
+        android:scaleType="centerCrop"
+        android:tag="emoji_loudly_crying_face"
+        app:layout_constraintDimensionRatio="h,1:1"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/face1"
+        app:srcCompat="@drawable/emoji_loudly_crying_face" />
+
+    <ImageButton
+        android:id="@+id/face5"
+        android:layout_width="100dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:background="@null"
+        android:onClick="onFaceButtonClick"
+        android:scaleType="centerCrop"
+        android:tag="emoji_nerd_with_glasses"
+        app:layout_constraintDimensionRatio="h,1:1"
+        app:layout_constraintEnd_toStartOf="@+id/face6"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/face4"
+        app:layout_constraintTop_toBottomOf="@+id/face2"
+        app:srcCompat="@drawable/emoji_nerd_with_glasses" />
+
+    <ImageButton
+        android:id="@+id/face3"
+        android:layout_width="100dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:background="@null"
+        android:onClick="onFaceButtonClick"
+        android:scaleType="centerCrop"
+        android:tag="emoji_heart_eyes"
+        app:layout_constraintDimensionRatio="h,1:1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/face2"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/emoji_heart_eyes" />
+
+    <ImageButton
+        android:id="@+id/face2"
+        android:layout_width="100dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:background="@null"
+        android:onClick="onFaceButtonClick"
+        android:scaleType="centerCrop"
+        android:tag="emoji_face_with_thermometer"
+        app:layout_constraintDimensionRatio="h,1:1"
+        app:layout_constraintEnd_toStartOf="@+id/face3"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/face1"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/emoji_face_with_thermometer" />
+
+    <ImageButton
+        android:id="@+id/face1"
+        android:layout_width="100dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:background="@null"
+        android:onClick="onFaceButtonClick"
+        android:scaleType="centerCrop"
+        android:tag="emoji_dizzy_face"
+        app:layout_constraintDimensionRatio="h,1:1"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/emoji_dizzy_face" />
+</android.support.constraint.ConstraintLayout>
