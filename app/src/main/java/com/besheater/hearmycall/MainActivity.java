@@ -1,54 +1,102 @@
 package com.besheater.hearmycall;
 
+import android.app.Activity;
 import android.content.Intent;
+import android.support.design.widget.TabLayout;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 
 public class MainActivity extends AppCompatActivity {
+    private UserData userData = new UserData();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        if (savedInstanceState != null) {
-            String savedText = savedInstanceState.getString("name");
-            EditText text = findViewById(R.id.editText);
-            text.setText(savedText);
-        }
+        //Attach SectionsPagerAdapter to the ViewPager
+        ViewPager pager = findViewById(R.id.pager);
+        pager.setAdapter(new SectionsPagerAdapter(getSupportFragmentManager()));
 
-        int chosenImage = getIntent().getIntExtra("avatarImageId", R.drawable.emoji_slightly_smiling_face);
-        ImageButton button = findViewById(R.id.imageButton);
-        button.setImageResource(chosenImage);
+
+        //Attach ViewPager to the TabLayout
+        TabLayout tabLayout = findViewById(R.id.tabs);
+        tabLayout.setupWithViewPager(pager);
+    }
+
+    public UserData getUserData() {
+        return this.userData;
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+
         if (requestCode == 1) {
-            int chosenImage = data.getIntExtra("avatarImageId", R.drawable.emoji_slightly_smiling_face);
-            ImageButton button = findViewById(R.id.imageButton);
-            button.setImageResource(chosenImage);
+            if(resultCode == Activity.RESULT_OK){
+                //Acquiring data from Intent
+                int avatarImageNum = intent.getIntExtra(AvatarImageChoser.AVATAR_IMAGE_NUM, 0);
+                userData.setAvatarImage(avatarImageNum);
+
+                //Display data
+                ImageView imageView = findViewById(R.id.avatar_image);
+                imageView.setImageResource(userData.getAvatarImage().getAvatarImageLargeId());
+
+            }
+            if (resultCode == Activity.RESULT_CANCELED) {
+                //Write your code if there's no result
+            }
         }
     }
 
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
-        EditText text = findViewById(R.id.editText);
-        savedInstanceState.putCharSequence("name", text.getText().toString());
         super.onSaveInstanceState(savedInstanceState);
     }
 
-    public void onCallButtonClick(View view) {
-        //Start map activity
-        Intent intent = new Intent(this, MapsActivity.class);
-        startActivity(intent);
-    }
+    private class SectionsPagerAdapter extends FragmentPagerAdapter {
 
-    public void onFaceButtonClick(View view) {
-        Intent intent = new Intent(this, AvatarImageChoser.class);
-        startActivityForResult(intent, 1);
+        public SectionsPagerAdapter(FragmentManager fm) {
+            super(fm);
+        }
+
+        @Override
+        public CharSequence getPageTitle(int i) {
+            switch (i) {
+                case 0:
+                    return getResources().getText(R.string.settings_tab);
+                case 1:
+                    return getResources().getText(R.string.map_tab);
+                case 2:
+                    return getResources().getText(R.string.chat_tab);
+
+            }
+            return null;
+        }
+
+        @Override
+        public Fragment getItem(int i) {
+            switch (i) {
+                case 0:
+                    return new SettingsFragment();
+                case 1 :
+                    return new MapFragment();
+                case 2:
+                    return new ChatFragment();
+            }
+            return null;
+        }
+
+        @Override
+        public int getCount() {
+            return 3;
+        }
     }
 }

@@ -3,4 +3,8 @@
     <color name="colorPrimary">#008577</color>
     <color name="colorPrimaryDark">#00574B</color>
     <color name="colorAccent">#D81B60</color>
+    <color name="user_message_background">#52f2a7</color>
+    <color name="teammate_message_background">#fdffa3</color>
+    <color name="avatar_image_pressed">#e8e8e8</color>
+    <color name="avatar_image_background">#00000000</color>
 </resources>

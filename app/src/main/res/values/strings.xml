@@ -1,8 +1,30 @@
 <resources>
     <string name="app_name">Hear My Call</string>
+    <string name="title_activity_maps">Map</string>
+    <!-- Strings in settings tab -->
     <string name="name_hint">Name of your Avatar</string>
+    <string name="avatar_image">Your avatar image</string>
     <string name="avatar_hint">^ Tap image to chose ^</string>
     <string name="call_button">Look Around</string>
     <string name="invisible">Invisible for others</string>
-    <string name="title_activity_maps">Map</string>
+    <string name="channel_selection">Select channel:</string>
+    <string name="receive_notifications">Receive notifications</string>
+    <string name="in_radius">In radius:</string>
+    <string name="radius_50m">50m</string>
+    <string name="radius_100m">100m</string>
+    <string name="radius_200m">200m</string>
+    <string name="radius_500m">500m</string>
+    <string name="radius_1km">1km</string>
+    <string-array name="channels">
+        <item>All</item>
+        <item>Dating</item>
+        <item>Party</item>
+        <item>Help</item>
+    </string-array>
+    <!-- Tab names -->
+    <string name="settings_tab">Settings</string>
+    <string name="map_tab">Map</string>
+    <string name="chat_tab">Chat</string>
+    <!-- Strings in chat tab -->
+    <string name="message_text_hint">Type a message</string>
 </resources>
