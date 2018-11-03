@@ -10,13 +10,13 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 
 public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.ViewHolder> {
+    public static final int USER_MESSAGE = 0;
+    public static final int TEAMMATE_MESSAGE = 1;
 
     private List<ChatMessage> messages;
-    private String userName;
 
-    public MessagesAdapter(List<ChatMessage> messages, String userName) {
+    public MessagesAdapter(List<ChatMessage> messages) {
         this.messages = messages;
-        this.userName = userName;
     }
 
     @NonNull
@@ -25,12 +25,12 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.ViewHo
         //Create FrameLayout variable for return
         FrameLayout messageFrame;
         //Find to whom message belongs - user or teammate
-        if (viewType == 0) {
-            //This is user message
+        if (viewType == USER_MESSAGE) {
+            //This is a user message
             messageFrame = (FrameLayout) LayoutInflater.from(viewGroup.getContext())
                     .inflate(R.layout.user_message, viewGroup, false);
         } else {
-            //This is teammate message
+            //This is a teammate message
             messageFrame = (FrameLayout) LayoutInflater.from(viewGroup.getContext())
                     .inflate(R.layout.teammate_message, viewGroup, false);
         }
@@ -40,13 +40,13 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.ViewHo
 
     @Override
     public int getItemViewType(int position) {
-        //return 0 if user message
-        //return 1 if teammate message
         ChatMessage message = messages.get(position);
-        if (message.getAuthor().equals(userName)) {
-            return 0;
+        if (message.isUserMessage()) {
+            //This is a User message
+            return USER_MESSAGE;
         } else {
-            return 1;
+            //This is a teammate message
+            return TEAMMATE_MESSAGE;
         }
     }
 
@@ -55,7 +55,8 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.ViewHo
         FrameLayout messageFrame = viewHolder.messageFrame;
         ChatMessage message = messages.get(position);
         //Set message author if it's message from teammate
-        if (!message.getAuthor().equals(userName)) {
+        if (!message.isUserMessage()) {
+            //This is a message from teammate so we must set Author
             TextView messageAuthor = messageFrame.findViewById(R.id.teammate_name);
             messageAuthor.setText(message.getAuthor());
         }

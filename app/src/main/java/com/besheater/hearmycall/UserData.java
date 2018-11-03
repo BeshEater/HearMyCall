@@ -1,21 +1,52 @@
 package com.besheater.hearmycall;
 
-import java.util.ArrayList;
-import java.util.List;
+import android.os.Parcel;
+import android.os.Parcelable;
 
-public class UserData {
+public class UserData implements Parcelable {
+    public static final Parcelable.Creator<UserData> CREATOR = new MyCreator();
 
-    public static final String USER_DATA="userData";
-
-    private List<AvatarImage> avatarImages;
     private String name;
     private AvatarImage avatarImage;
-    boolean isVisible = true;
-    private String chatChannel;
+    private boolean isVisible;
+    private boolean isReceiveNotification;
+    private int notificationRadius; //position
+    private int chatChannelPos;
+    private ChatHandler chatHandler;
+    private String callMessage;
 
     public UserData() {
-        setListOfImages();
-        avatarImage = avatarImages.get(0);
+        name = "";
+        avatarImage = AppData.getListOfAvatarImages().get(0);
+        isVisible = true;
+        isReceiveNotification = true;
+        notificationRadius = 2;
+        chatChannelPos = 0;
+        chatHandler = new ChatHandler();
+    }
+
+    public UserData(Parcel source) {
+        //Reconstruct from the parcel
+        name = source.readString();
+        avatarImage = source.readParcelable(null);
+        isVisible = (Boolean) source.readValue(null);
+        isReceiveNotification = (Boolean) source.readValue(null);
+        notificationRadius = source.readInt();
+        chatChannelPos = source.readInt();
+        chatHandler = source.readParcelable(null);
+        callMessage = source.readString();
+    }
+
+    public String getCallMessage() {
+        return callMessage;
+    }
+
+    public void setCallMessage(String callMessage) {
+        this.callMessage = callMessage;
+    }
+
+    public ChatHandler getChatHandler() {
+        return chatHandler;
     }
 
     public String getName() {
@@ -34,8 +65,20 @@ public class UserData {
         this.avatarImage = avatarImage;
     }
 
-    public void setAvatarImage(int position) {
-        this.avatarImage = avatarImages.get(position);
+    public int getNotificationRadius() {
+        return notificationRadius;
+    }
+
+    public void setNotificationRadius(int notificationRadius) {
+        this.notificationRadius = notificationRadius;
+    }
+
+    public boolean isReceiveNotification() {
+        return isReceiveNotification;
+    }
+
+    public void setReceiveNotification(boolean receiveNotification) {
+        isReceiveNotification = receiveNotification;
     }
 
     public boolean isVisible() {
@@ -46,27 +89,40 @@ public class UserData {
         isVisible = visible;
     }
 
-    public String getChatChannel() {
-        return chatChannel;
+
+    public int getChatChannelPos() {
+        return chatChannelPos;
     }
 
-    public void setChatChannel(String chatChannel) {
-        this.chatChannel = chatChannel;
+    public void setChatChannelPos(int chatChannelPos) {
+        this.chatChannelPos = chatChannelPos;
     }
 
-    public List<AvatarImage> getListOfAvatarImages() {
-        return avatarImages;
+    @Override
+    public int describeContents() {
+        return 0;
     }
 
-    private void setListOfImages() {
-        List<AvatarImage> list = new ArrayList<>();
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(name);
+        dest.writeParcelable(avatarImage, 0);
+        dest.writeValue(isVisible);
+        dest.writeValue(isReceiveNotification);
+        dest.writeInt(notificationRadius);
+        dest.writeInt(chatChannelPos);
+        dest.writeParcelable(chatHandler, 0);
+        dest.writeString(callMessage);
 
-        list.add(new AvatarImage(0, R.drawable.avatar_image_large_0, R.drawable.avatar_image_marker_0));
-        list.add(new AvatarImage(1, R.drawable.avatar_image_large_1, R.drawable.avatar_image_marker_1));
-        list.add(new AvatarImage(2, R.drawable.avatar_image_large_2, R.drawable.avatar_image_marker_2));
-        list.add(new AvatarImage(3, R.drawable.avatar_image_large_3, R.drawable.avatar_image_marker_3));
-        list.add(new AvatarImage(4, R.drawable.avatar_image_large_4, R.drawable.avatar_image_marker_4));
-
-        this.avatarImages = list;
     }
+
+    public static class MyCreator implements Parcelable.Creator<UserData> {
+        public UserData createFromParcel(Parcel source) {
+            return new UserData(source);
+        }
+        public UserData[] newArray(int size) {
+            return new UserData[size];
+        }
+    }
+
 }

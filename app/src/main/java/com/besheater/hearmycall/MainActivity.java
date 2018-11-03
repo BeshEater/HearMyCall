@@ -6,58 +6,85 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 
 public class MainActivity extends AppCompatActivity {
-    private UserData userData = new UserData();
+    public static final String USER_DATA = "userData";
+    private UserData userData;
+    private SettingsFragment settingsFragment;
+    private MapFragment mapFragment;
+    private ChatFragment chatFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //Attach SectionsPagerAdapter to the ViewPager
-        ViewPager pager = findViewById(R.id.pager);
-        pager.setAdapter(new SectionsPagerAdapter(getSupportFragmentManager()));
+        //Recreate previously saved state
+        if(savedInstanceState != null) {
+            //Recreate userData
+            userData = savedInstanceState.getParcelable(USER_DATA);
+        } else {
+            //Create new userData object
+            userData = new UserData();
+            //Fill with test values
+            userData.getChatHandler().fillWithTestValues();
+        }
 
+
+        //Attach SectionsPagerAdapter to the ViewPager
+        final ViewPager pager = findViewById(R.id.pager);
+        pager.setAdapter(new SectionsPagerAdapter(getSupportFragmentManager()));
 
         //Attach ViewPager to the TabLayout
         TabLayout tabLayout = findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(pager);
+
+        //Update tab when it's selected
+        pager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                switch (position) {
+                    case 0:
+                        if (settingsFragment != null) settingsFragment.updateFromUserData();
+                    case 1:
+                        if (mapFragment != null) mapFragment.updateFromUserData();
+                    case 2:
+                        if (chatFragment != null) chatFragment.updateFromUserData();
+                }
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
     }
 
     public UserData getUserData() {
         return this.userData;
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-
-        if (requestCode == 1) {
-            if(resultCode == Activity.RESULT_OK){
-                //Acquiring data from Intent
-                int avatarImageNum = intent.getIntExtra(AvatarImageChoser.AVATAR_IMAGE_NUM, 0);
-                userData.setAvatarImage(avatarImageNum);
-
-                //Display data
-                ImageView imageView = findViewById(R.id.avatar_image);
-                imageView.setImageResource(userData.getAvatarImage().getAvatarImageLargeId());
-
-            }
-            if (resultCode == Activity.RESULT_CANCELED) {
-                //Write your code if there's no result
-            }
-        }
-    }
 
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
+        //Save UserData
+        savedInstanceState.putParcelable(USER_DATA, userData);
+
+        //Call supper
         super.onSaveInstanceState(savedInstanceState);
     }
 
@@ -85,11 +112,14 @@ public class MainActivity extends AppCompatActivity {
         public Fragment getItem(int i) {
             switch (i) {
                 case 0:
-                    return new SettingsFragment();
+                    SettingsFragment settingsFragment = new SettingsFragment();
+                    return settingsFragment;
                 case 1 :
-                    return new MapFragment();
+                    MapFragment mapFragment = new MapFragment();
+                    return mapFragment;
                 case 2:
-                    return new ChatFragment();
+                    ChatFragment chatFragment = new ChatFragment();
+                    return chatFragment;
             }
             return null;
         }
@@ -97,6 +127,28 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public int getCount() {
             return 3;
+        }
+
+        // Here we can finally safely save a reference to the created
+        // Fragment, no matter where it came from (either getItem() or
+        // FragmentManger). Simply save the returned Fragment from
+        // super.instantiateItem() into an appropriate reference depending
+        // on the ViewPager position.
+        @Override
+        public Object instantiateItem(ViewGroup container, int position) {
+            Fragment createdFragment = (Fragment) super.instantiateItem(container, position);
+            // save the appropriate reference depending on position
+            switch (position) {
+                case 0:
+                    settingsFragment = (SettingsFragment) createdFragment;
+                    break;
+                case 1:
+                    mapFragment = (MapFragment) createdFragment;
+                    break;
+                case 2:
+                    chatFragment = (ChatFragment) createdFragment;
+            }
+            return createdFragment;
         }
     }
 }

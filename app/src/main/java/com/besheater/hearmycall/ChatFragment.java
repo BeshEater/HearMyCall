@@ -20,8 +20,7 @@ import java.util.Date;
  */
 public class ChatFragment extends Fragment {
 
-    private ChatHandler chatHandler;
-    private MessagesAdapter messagesAdapter;
+    private UserData userData;
 
     public ChatFragment() {
         // Required empty public constructor
@@ -34,10 +33,16 @@ public class ChatFragment extends Fragment {
         // Inflate the layout for this fragment
         final View view = inflater.inflate(R.layout.fragment_chat, container, false);
 
+        //Set UserData object reference
+        MainActivity mainActivity = (MainActivity) getActivity();
+        userData = mainActivity.getUserData();
+
+        //Get ChatHandler object reference
+        final ChatHandler chatHandler = userData.getChatHandler();
+
         //Create Chat
         RecyclerView chatRecyclerView = view.findViewById(R.id.chat_recycler);
-        this.chatHandler = new ChatHandler(chatRecyclerView,"User");
-        chatHandler.fillWithTestValues();
+        chatHandler.createChat(chatRecyclerView);
 
         //Register listeners
         //For send button
@@ -48,9 +53,9 @@ public class ChatFragment extends Fragment {
                 //Send new message to chat
                 EditText newMessageText = view.findViewById(R.id.new_message_text);
                 String text = newMessageText.getText().toString();
-                String author = chatHandler.getUserName();
+                String author = "User";
                 Date date = new Date();
-                ChatMessage message = new ChatMessage(author, text, date);
+                ChatMessage message = new ChatMessage(author, text, date, true, true);
                 chatHandler.addMessage(message);
                 chatHandler.scrollChatToBottom();
                 newMessageText.getText().clear();
@@ -58,6 +63,10 @@ public class ChatFragment extends Fragment {
         });
 
         return view;
+    }
+
+    public void updateFromUserData() {
+
     }
 
 }

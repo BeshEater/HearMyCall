@@ -10,7 +10,7 @@ import android.view.View;
 
 import java.util.List;
 
-public class AvatarImageChoser extends AppCompatActivity {
+public class AvatarImageChooser extends AppCompatActivity {
 
     public static final String AVATAR_IMAGE_NUM = "avatarImageNum";
 
@@ -21,7 +21,7 @@ public class AvatarImageChoser extends AppCompatActivity {
 
 
         //Bind adapter to AvatarImageRecycler
-        AvatarImagesAdapter adapter = new AvatarImagesAdapter(new UserData().getListOfAvatarImages());
+        AvatarImagesAdapter adapter = new AvatarImagesAdapter(AppData.getListOfAvatarImages());
         RecyclerView avatarImageRecycler = findViewById(R.id.avatar_image_recycler);
         avatarImageRecycler.setAdapter(adapter);
         GridLayoutManager layoutManager = new GridLayoutManager(this, 3);

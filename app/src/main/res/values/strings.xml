@@ -25,6 +25,8 @@
     <string name="settings_tab">Settings</string>
     <string name="map_tab">Map</string>
     <string name="chat_tab">Chat</string>
+    <!-- Strings in map tab -->
+    <string name="call_message_info_window_hint">^ Tap to Accept ^</string>
     <!-- Strings in chat tab -->
     <string name="message_text_hint">Type a message</string>
 </resources>
