@@ -28,27 +28,27 @@ public class SettingsFragment extends Fragment {
     private View view;
 
     public SettingsFragment() {
-        // Required empty public constructor
+        //  Required empty public constructor
     }
 
 
     @Override
     public View onCreateView(final LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
+        //  Inflate the layout for this fragment
         view = inflater.inflate(R.layout.fragment_settings, container, false);
 
 
-        //Set UserData object reference
+        // Set UserData object reference
         MainActivity mainActivity = (MainActivity) getActivity();
         userData = mainActivity.getUserData();
 
-        //Set all settings according to UserData
+        // Set all settings according to UserData
         updateFromUserData();
 
-        //*********Register listeners************
+        // *********Register listeners************
 
-        //Avatar name
+        // Avatar name
         final EditText avatarName = view.findViewById(R.id.avatar_name);
         avatarName.addTextChangedListener(new TextWatcher() {
             @Override
@@ -67,7 +67,7 @@ public class SettingsFragment extends Fragment {
             }
         });
 
-        //Avatar image chooser
+        // Avatar image chooser
         ImageView avatarImage = view.findViewById(R.id.avatar_image);
         avatarImage.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -77,7 +77,7 @@ public class SettingsFragment extends Fragment {
             }
         });
 
-        //Invisible check box
+        // Invisible check box
         final CheckBox isInvisible = view.findViewById(R.id.isInvisible);
         isInvisible.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -90,7 +90,7 @@ public class SettingsFragment extends Fragment {
             }
         });
 
-        //Channel
+        // Channel
         final Spinner channel = view.findViewById(R.id.channel);
         channel.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -104,7 +104,7 @@ public class SettingsFragment extends Fragment {
             }
         });
 
-        //Receive notification check box
+        // Receive notification check box
         final CheckBox isReceiveNotification = view.findViewById(R.id.isReceiveNotification);
         isReceiveNotification.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -113,7 +113,7 @@ public class SettingsFragment extends Fragment {
             }
         });
 
-        //Radius for notification
+        // Radius for notification
         SeekBar radiusOfNotify = view.findViewById(R.id.radius_seekbar);
         radiusOfNotify.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -137,22 +137,22 @@ public class SettingsFragment extends Fragment {
     }
 
     public void updateFromUserData() {
-        //Avatar name
+        // Avatar name
         EditText avatarName = view.findViewById(R.id.avatar_name);
         avatarName.setText(userData.getName());
-        //Avatar image
+        // Avatar image
         ImageView avatarImage = view.findViewById(R.id.avatar_image);
         avatarImage.setImageResource(userData.getAvatarImage().getAvatarImageLargeId());
-        //Invisible check box
+        // Invisible check box
         CheckBox isInvisible = view.findViewById(R.id.isInvisible);
         isInvisible.setChecked(!userData.isVisible());
-        //Channel
+        // Channel
         Spinner channel = view.findViewById(R.id.channel);
         channel.setSelection(userData.getChatChannelPos());
-        //Receive notification check box
+        // Receive notification check box
         CheckBox isReceiveNotification = view.findViewById(R.id.isReceiveNotification);
         isReceiveNotification.setChecked(userData.isReceiveNotification());
-        //Radius for notification
+        // Radius for notification
         SeekBar radiusOfNotify = view.findViewById(R.id.radius_seekbar);
         radiusOfNotify.setProgress(userData.getNotificationRadius());
     }
@@ -160,22 +160,22 @@ public class SettingsFragment extends Fragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
 
-        //Avatar image chosen
+        // Avatar image chosen
         if (requestCode == PICK_AVATAR_IMAGE_REQUEST) {
             if(resultCode == Activity.RESULT_OK){
-                //Acquiring data from Intent
+                // Acquiring data from Intent
                 int avatarImageNum = intent.getIntExtra(AvatarImageChooser.AVATAR_IMAGE_NUM, 2);
 
                 ImageView imageView = getActivity().findViewById(R.id.avatar_image);
-                AvatarImage avatarImage = AppData.getAvatarImageAtPos(avatarImageNum);
-                //Save to UserData
+                AvatarImage avatarImage = AppData.getAvatarImageAtNum(avatarImageNum);
+                // Save to UserData
                 userData.setAvatarImage(avatarImage);
-                //Display new avatar image
+                // Display new avatar image
                 imageView.setImageResource(avatarImage.getAvatarImageLargeId());
 
             }
             if (resultCode == Activity.RESULT_CANCELED) {
-                //Write your code if there's no result
+                // Write your code if there's no result
             }
         }
     }

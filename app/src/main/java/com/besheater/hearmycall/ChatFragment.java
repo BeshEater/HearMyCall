@@ -23,34 +23,34 @@ public class ChatFragment extends Fragment {
     private UserData userData;
 
     public ChatFragment() {
-        // Required empty public constructor
+        //  Required empty public constructor
     }
 
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
+        //  Inflate the layout for this fragment
         final View view = inflater.inflate(R.layout.fragment_chat, container, false);
 
-        //Set UserData object reference
+        // Set UserData object reference
         MainActivity mainActivity = (MainActivity) getActivity();
         userData = mainActivity.getUserData();
 
-        //Get ChatHandler object reference
+        // Get ChatHandler object reference
         final ChatHandler chatHandler = userData.getChatHandler();
 
-        //Create Chat
+        // Create Chat
         RecyclerView chatRecyclerView = view.findViewById(R.id.chat_recycler);
         chatHandler.createChat(chatRecyclerView);
 
-        //Register listeners
-        //For send button
+        // Register listeners
+        // For send button
         ImageButton sendButton = view.findViewById(R.id.send_message_button);
         sendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //Send new message to chat
+                // Send new message to chat
                 EditText newMessageText = view.findViewById(R.id.new_message_text);
                 String text = newMessageText.getText().toString();
                 String author = "User";

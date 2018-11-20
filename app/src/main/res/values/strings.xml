@@ -29,4 +29,5 @@
     <string name="call_message_info_window_hint">^ Tap to Accept ^</string>
     <!-- Strings in chat tab -->
     <string name="message_text_hint">Type a message</string>
+    <string name="permission_denied">You need to grant location permission for correct work</string>
 </resources>

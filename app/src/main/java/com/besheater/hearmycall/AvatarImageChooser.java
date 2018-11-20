@@ -20,14 +20,14 @@ public class AvatarImageChooser extends AppCompatActivity {
         setContentView(R.layout.activity_avatar_image_choser);
 
 
-        //Bind adapter to AvatarImageRecycler
+        // Bind adapter to AvatarImageRecycler
         AvatarImagesAdapter adapter = new AvatarImagesAdapter(AppData.getListOfAvatarImages());
         RecyclerView avatarImageRecycler = findViewById(R.id.avatar_image_recycler);
         avatarImageRecycler.setAdapter(adapter);
         GridLayoutManager layoutManager = new GridLayoutManager(this, 3);
         avatarImageRecycler.setLayoutManager(layoutManager);
 
-        //Set listener to adapter sot it send back to MainActivity
+        // Set listener to adapter sot it send back to MainActivity
         adapter.setListener(new AvatarImagesAdapter.Listener() {
             @Override
             public void onClick(int position) {

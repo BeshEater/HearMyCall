@@ -22,15 +22,15 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.ViewHo
     @NonNull
     @Override
     public MessagesAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int viewType) {
-        //Create FrameLayout variable for return
+        // Create FrameLayout variable for return
         FrameLayout messageFrame;
-        //Find to whom message belongs - user or teammate
+        // Find to whom message belongs - user or teammate
         if (viewType == USER_MESSAGE) {
-            //This is a user message
+            // This is a user message
             messageFrame = (FrameLayout) LayoutInflater.from(viewGroup.getContext())
                     .inflate(R.layout.user_message, viewGroup, false);
         } else {
-            //This is a teammate message
+            // This is a teammate message
             messageFrame = (FrameLayout) LayoutInflater.from(viewGroup.getContext())
                     .inflate(R.layout.teammate_message, viewGroup, false);
         }
@@ -42,10 +42,10 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.ViewHo
     public int getItemViewType(int position) {
         ChatMessage message = messages.get(position);
         if (message.isUserMessage()) {
-            //This is a User message
+            // This is a User message
             return USER_MESSAGE;
         } else {
-            //This is a teammate message
+            // This is a teammate message
             return TEAMMATE_MESSAGE;
         }
     }
@@ -54,16 +54,16 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.ViewHo
     public void onBindViewHolder(@NonNull MessagesAdapter.ViewHolder viewHolder, int position) {
         FrameLayout messageFrame = viewHolder.messageFrame;
         ChatMessage message = messages.get(position);
-        //Set message author if it's message from teammate
+        // Set message author if it's message from teammate
         if (!message.isUserMessage()) {
-            //This is a message from teammate so we must set Author
+            // This is a message from teammate so we must set Author
             TextView messageAuthor = messageFrame.findViewById(R.id.teammate_name);
             messageAuthor.setText(message.getAuthor());
         }
-        //Set message text
+        // Set message text
         TextView messageText = messageFrame.findViewById(R.id.message_text);
         messageText.setText(message.getMessageText());
-        //Set message time
+        // Set message time
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat();
         simpleDateFormat.applyPattern("HH:mm:ss");
         String time = simpleDateFormat.format(message.getMessageTime());

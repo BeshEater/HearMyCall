@@ -24,7 +24,7 @@ public class ChatMessage implements Parcelable {
     }
 
     public ChatMessage(Parcel source) {
-        //Reconstruct from the parcel
+        // Reconstruct from the parcel
         author = source.readString();
         messageText = source.readString();
         messageTime = new Date(source.readLong());

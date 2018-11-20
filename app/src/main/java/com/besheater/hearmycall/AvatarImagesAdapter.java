@@ -32,10 +32,10 @@ public class AvatarImagesAdapter extends RecyclerView.Adapter<AvatarImagesAdapte
     public void onBindViewHolder(@NonNull AvatarImagesAdapter.ViewHolder viewHolder,final int position) {
         CardView cv = viewHolder.cv;
         AvatarImage avatarImage = avatarImages.get(position);
-        //Set ImageView
+        // Set ImageView
         ImageView imageView = cv.findViewById(R.id.avatar_image);
         imageView.setImageResource(avatarImage.getAvatarImageLargeId());
-        //Set listener for each avatar image
+        // Set listener for each avatar image
         cv.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

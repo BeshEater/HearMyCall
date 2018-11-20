@@ -10,14 +10,14 @@ public class UserData implements Parcelable {
     private AvatarImage avatarImage;
     private boolean isVisible;
     private boolean isReceiveNotification;
-    private int notificationRadius; //position
+    private int notificationRadius; // position
     private int chatChannelPos;
     private ChatHandler chatHandler;
     private String callMessage;
 
     public UserData() {
         name = "";
-        avatarImage = AppData.getListOfAvatarImages().get(0);
+        avatarImage = AppData.getAvatarImageAtNum(0);
         isVisible = true;
         isReceiveNotification = true;
         notificationRadius = 2;
@@ -26,7 +26,7 @@ public class UserData implements Parcelable {
     }
 
     public UserData(Parcel source) {
-        //Reconstruct from the parcel
+        // Reconstruct from the parcel
         name = source.readString();
         avatarImage = source.readParcelable(null);
         isVisible = (Boolean) source.readValue(null);

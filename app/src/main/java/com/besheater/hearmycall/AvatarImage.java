@@ -17,7 +17,7 @@ public class AvatarImage implements Parcelable {
     }
 
     public AvatarImage(Parcel source) {
-        //Reconstruct from the parcel
+        // Reconstruct from the parcel
         avatarImageNum = source.readInt();
         avatarImageLargeId = source.readInt();
         avatarImageMarkerId = source.readInt();

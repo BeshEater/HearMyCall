@@ -27,7 +27,7 @@ public class ChatHandler implements Parcelable {
     public void createChat(RecyclerView chatRecyclerView) {
         this.chatRecyclerView = chatRecyclerView;
 
-        //Bind chat to adapter
+        // Bind chat to adapter
         messagesAdapter = new MessagesAdapter(messages);
         chatRecyclerView.setAdapter(messagesAdapter);
         LinearLayoutManager layoutManager = new LinearLayoutManager(chatRecyclerView.getContext());
