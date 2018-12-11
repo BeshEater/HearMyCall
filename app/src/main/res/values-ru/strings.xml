@@ -16,7 +16,7 @@
     <string name="radius_500m">500m</string>
     <string name="radius_1km">1km</string>
     <string-array name="channels">
-        <item>All</item>
+        <item>Все</item>
         <item>Dating</item>
         <item>Party</item>
         <item>Help</item>
