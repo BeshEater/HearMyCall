@@ -4,9 +4,16 @@ import android.Manifest;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
+import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.os.IBinder;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
@@ -22,13 +29,41 @@ import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
     public static final String REQUESTED_LOCATION_PERMISSION = Manifest.permission.ACCESS_FINE_LOCATION;
+    public static final String USER_DATA = "userData";
     private final int LOCATION_PERMISSION_REQUEST_CODE = 783;
     private final int LOC_NOT_GRANTED_NOTIFICATION_ID = 9023;
-    public static final String USER_DATA = "userData";
+    private LocationListener listener;
+    private LocationManager locManager;
     private UserData userData;
     private SettingsFragment settingsFragment;
     private MapFragment mapFragment;
     private ChatFragment chatFragment;
+    private WebServerHandler webServerHandler;
+    private boolean bound = false;
+    private ServiceConnection connection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            // Save service reference for later use
+            WebServerHandler.WebServerBinder webServerBinder =
+                    (WebServerHandler.WebServerBinder) service;
+            webServerHandler = webServerBinder.getWebServerHandlerService();
+            bound = true;
+
+            // Start requesting server for information
+            webServerHandler.setupRepeatedRequestsInBackground(userData);
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            webServerHandler.stopPeriodicUsersUpdates();
+            webServerHandler.stopPeriodicMessagesUpdates();
+            bound = false;
+        }
+    };
+
+    public WebServerHandler getWebServerHandler() {
+        return webServerHandler;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,10 +77,14 @@ public class MainActivity extends AppCompatActivity {
         } else {
             // Create new userData object
             userData = new UserData();
-            // Fill with test values
-            userData.getChatHandler().fillWithTestValues();
         }
 
+        // Setup periodic location update
+        setupUserLocationUpdates();
+
+        // bind service for web connections
+        Intent intent = new Intent(this, WebServerHandler.class);
+        bindService(intent, connection, Context.BIND_AUTO_CREATE);
 
         // Attach SectionsPagerAdapter to the ViewPager
         final ViewPager pager = findViewById(R.id.pager);
@@ -166,6 +205,88 @@ public class MainActivity extends AppCompatActivity {
 
         // Call supper
         super.onSaveInstanceState(savedInstanceState);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        // Unbound service
+        if (bound) {
+            unbindService(connection);
+            bound = false;
+        }
+
+        // Stop location updates
+
+        if(locManager != null && listener != null) {
+            if (ContextCompat.checkSelfPermission(
+                    this,
+                    MainActivity.REQUESTED_LOCATION_PERMISSION)
+                    == PackageManager.PERMISSION_GRANTED) {
+                locManager.removeUpdates(listener);
+            }
+            locManager = null;
+            listener = null;
+        }
+    }
+
+    private void setupUserLocationUpdates() {
+
+        // Setup location listener
+        listener = new LocationListener() {
+            @Override
+            public void onLocationChanged(Location location) {
+                double latitude = location.getLatitude();
+                double longitude = location.getLongitude();
+                userData.setLatitude(latitude);
+                userData.setLongitude(longitude);
+            }
+
+            @Override
+            public void onStatusChanged(String provider, int status, Bundle extras) {
+
+            }
+
+            @Override
+            public void onProviderEnabled(String provider) {
+
+            }
+
+            @Override
+            public void onProviderDisabled(String provider) {
+
+            }
+        };
+
+        // Setup location manager
+        locManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+        // Check if permission for location granted
+        if (ContextCompat.checkSelfPermission(
+                this,
+                MainActivity.REQUESTED_LOCATION_PERMISSION)
+                == PackageManager.PERMISSION_GRANTED) {
+            // Get best location provider
+            String provider = locManager.getBestProvider(new Criteria(), true);
+            if (provider != null) {
+                // Set current location to last known
+                Location loc = locManager.getLastKnownLocation(provider);
+                // if location exist then update user data
+                if (loc != null) {
+                    userData.setLatitude(loc.getLatitude());
+                    userData.setLongitude(loc.getLongitude());
+                }
+
+                // Register listener for location change
+                locManager.requestLocationUpdates(provider, 1000, 5, listener);
+            }
+        } else {
+            // Show that location permission not granted
+            Toast toast = Toast.makeText(
+                    this,
+                    "Doesn't have location permission",
+                    Toast.LENGTH_LONG);
+            toast.show();
+        }
     }
 
     private class SectionsPagerAdapter extends FragmentPagerAdapter {

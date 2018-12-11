@@ -3,6 +3,8 @@ package com.besheater.hearmycall;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.util.Date;
+
 public class UserData implements Parcelable {
     public static final Parcelable.Creator<UserData> CREATOR = new MyCreator();
 
@@ -14,15 +16,23 @@ public class UserData implements Parcelable {
     private int chatChannelPos;
     private ChatHandler chatHandler;
     private String callMessage;
+    private int id;
+    private String uniqId;
+    private double latitude;
+    private double longitude;
+    private int[] connectedUsersId;
 
     public UserData() {
         name = "";
-        avatarImage = AppData.getAvatarImageAtNum(0);
+        avatarImage = AppData.getAvatarImage(0);
         isVisible = true;
         isReceiveNotification = true;
         notificationRadius = 2;
         chatChannelPos = 0;
-        chatHandler = new ChatHandler();
+        chatHandler = new ChatHandler(this);
+        uniqId = "testID_12345";
+        latitude = 50.201035;
+        longitude = -28.440404;
     }
 
     public UserData(Parcel source) {
@@ -35,6 +45,54 @@ public class UserData implements Parcelable {
         chatChannelPos = source.readInt();
         chatHandler = source.readParcelable(null);
         callMessage = source.readString();
+        id = source.readInt();
+        uniqId = source.readString();
+        latitude = source.readDouble();
+        longitude = source.readDouble();
+    }
+
+    public int[] getConnectedUsersId() {
+        return connectedUsersId;
+    }
+
+    public void setConnectedUsersId(int[] connectedUsersId) {
+        this.connectedUsersId = connectedUsersId;
+    }
+
+    public User getThisUserObject() {
+        User thisUser = new User(id,
+                name,
+                latitude,
+                longitude,
+                avatarImage.getAvatarImageNum(),
+                callMessage,
+                connectedUsersId,
+                new Date().getTime());
+        return thisUser;
+    }
+
+    public String getUniqId() {
+        return uniqId;
+    }
+
+    public void setUniqId(String uniqId) {
+        this.uniqId = uniqId;
+    }
+
+    public double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(double latitude) {
+        this.latitude = latitude;
+    }
+
+    public double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(double longitude) {
+        this.longitude = longitude;
     }
 
     public String getCallMessage() {
@@ -113,7 +171,19 @@ public class UserData implements Parcelable {
         dest.writeInt(chatChannelPos);
         dest.writeParcelable(chatHandler, 0);
         dest.writeString(callMessage);
+        dest.writeInt(id);
+        dest.writeString(uniqId);
+        dest.writeDouble(latitude);
+        dest.writeDouble(longitude);
 
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public static class MyCreator implements Parcelable.Creator<UserData> {

@@ -5,6 +5,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.TextView;
 import java.text.SimpleDateFormat;
 import java.util.List;
@@ -12,11 +13,13 @@ import java.util.List;
 public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.ViewHolder> {
     public static final int USER_MESSAGE = 0;
     public static final int TEAMMATE_MESSAGE = 1;
-
+    private UserData userData;
     private List<ChatMessage> messages;
 
-    public MessagesAdapter(List<ChatMessage> messages) {
+    public MessagesAdapter(List<ChatMessage> messages, UserData userData) {
         this.messages = messages;
+        this.userData = userData;
+
     }
 
     @NonNull
@@ -41,7 +44,7 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.ViewHo
     @Override
     public int getItemViewType(int position) {
         ChatMessage message = messages.get(position);
-        if (message.isUserMessage()) {
+        if (isUserMessage(message)) {
             // This is a User message
             return USER_MESSAGE;
         } else {
@@ -50,23 +53,31 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.ViewHo
         }
     }
 
+    private boolean isUserMessage(ChatMessage message) {
+        return message.getUser().id == userData.getId();
+    }
+
     @Override
     public void onBindViewHolder(@NonNull MessagesAdapter.ViewHolder viewHolder, int position) {
         FrameLayout messageFrame = viewHolder.messageFrame;
         ChatMessage message = messages.get(position);
-        // Set message author if it's message from teammate
-        if (!message.isUserMessage()) {
-            // This is a message from teammate so we must set Author
+        // Set message author and avatar image if it's message from teammate
+        if (!isUserMessage(message)) {
+            // Set Author
             TextView messageAuthor = messageFrame.findViewById(R.id.teammate_name);
             messageAuthor.setText(message.getAuthor());
+            // Set Avatar image
+            int avatarImageNum = message.getUser().avatarImageNum;
+            ImageView avatarImage = messageFrame.findViewById(R.id.avatar_image);
+            avatarImage.setImageResource(AppData.getAvatarImage(avatarImageNum).getAvatarImageLargeId());
         }
         // Set message text
         TextView messageText = messageFrame.findViewById(R.id.message_text);
-        messageText.setText(message.getMessageText());
+        messageText.setText(message.getText());
         // Set message time
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat();
         simpleDateFormat.applyPattern("HH:mm:ss");
-        String time = simpleDateFormat.format(message.getMessageTime());
+        String time = simpleDateFormat.format(message.getTime());
         TextView messageTime = messageFrame.findViewById(R.id.message_time);
         messageTime.setText(time);
     }

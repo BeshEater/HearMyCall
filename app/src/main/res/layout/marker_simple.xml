@@ -12,7 +12,8 @@
         android:layout_width="32dp"
         android:layout_height="32dp"
         android:layout_gravity="center_horizontal"
-        android:scaleType="centerCrop" />
+        android:scaleType="centerCrop"
+        tools:src="@drawable/avatar_image_large_0"/>
 
     <TextView
         android:id="@+id/marker_name"
@@ -24,6 +25,7 @@
         android:paddingStart="6dp"
         android:paddingEnd="6dp"
         android:textColor="@color/marker_name_color"
-        android:background="@drawable/marker_name_style"/>
+        android:background="@drawable/marker_name_style"
+        tools:text="Michael"/>
 
 </LinearLayout>

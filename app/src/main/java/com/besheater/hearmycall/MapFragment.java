@@ -2,7 +2,6 @@ package com.besheater.hearmycall;
 
 
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -10,14 +9,9 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.OvalShape;
-import android.location.Criteria;
-import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.ContextCompat;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -27,7 +21,6 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -41,7 +34,11 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 
 public class MapFragment extends Fragment implements OnMapReadyCallback{
@@ -50,15 +47,14 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
     private GoogleMap mMap;
     private User thisUser;
     private Marker userMarker;
-    private LatLng currentUserLocation = new LatLng(53.213619, 63.627738);
-    private LocationListener listener;
-    private LocationManager locManager;
     private int maxAnimRad = 100;
     private int currentAnimRad = 5;
     private boolean isAnimRunning = false;
+    private boolean isPeriodicUpdatesRunning = false;
+    public static final long PERIODIC_UPDATE_INTERVAL = 5000; // in ms
     public static final float USER_MARKER_Z_INDEX = 2.0f;
     public static final float ANIM_MARKER_Z_INDEX = 1.0f;
-    private List<User> allUsers = new ArrayList<>();
+    private Map<User, Marker> allUsers = new HashMap<>();
     private List<Marker> allAnimCircleMarkers = new ArrayList<>();
 
     public MapFragment() {
@@ -90,9 +86,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        // Setup periodic location update
-        setupUserLocationUpdates();
-
         // Register listeners
         final EditText callMsg = view.findViewById(R.id.call_message);
         callMsg.addTextChangedListener(new TextWatcher() {
@@ -122,10 +115,20 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
             }
         });
 
-        // Buttons for calling
+        // Buttons
+        final ImageView myLocBtn = view.findViewById(R.id.my_location_button);
         final ImageView doneBtn = view.findViewById(R.id.call_message_done_button);
         final ImageView offBtn = view.findViewById(R.id.call_message_off_button);
         final ImageView callBtn = view.findViewById(R.id.call_button);
+
+        // For my location button
+        myLocBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                moveCameraToThisUser();
+            }
+        });
+
         // For call button
         callBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -155,12 +158,19 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
                 imm.hideSoftInputFromWindow(callMsg.getWindowToken(), 0);
                 callMsg.setVisibility(View.INVISIBLE);
 
+                // Clear Call message
+                userData.setCallMessage(null);
+                callMsg.setText("");
+
                 // Hide done and off buttons
                 doneBtn.setVisibility(View.GONE);
                 offBtn.setVisibility(View.GONE);
 
                 // Show call button
                 callBtn.setVisibility(View.VISIBLE);
+
+                // Redraw map
+                redrawMap();
 
             }
         });
@@ -191,6 +201,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
                 // Show info window on user marker
                 userMarker.showInfoWindow();
 
+                // Move camera
+                moveCameraToThisUser();
             }
         });
 
@@ -202,10 +214,62 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
     public void onMapReady(GoogleMap googleMap) {
         // Save GoogleMap object
         mMap = googleMap;
-        // Set InfoWindowAdapter for all markers
+        // Map settings
         mMap.setInfoWindowAdapter(new MarkerInfoWindowAdapter());
+        mMap.setOnMarkerClickListener(new MarkerClickListener());
+        mMap.setOnInfoWindowCloseListener(new InfoWindowCloseListener());
+        mMap.setOnInfoWindowClickListener(new InfoWindowClickListener());
 
         redrawMap();
+        moveCameraToThisUser();
+    }
+
+    private class InfoWindowClickListener implements GoogleMap.OnInfoWindowClickListener {
+
+        @Override
+        public void onInfoWindowClick(Marker marker) {
+            // Connect to this user
+            User user = (User) marker.getTag();
+            if (user != null && user.id != 0) {
+                int[] connectedUser = {user.id};
+                userData.setConnectedUsersId(connectedUser);
+            }
+            redrawMap();
+        }
+    }
+
+    private class InfoWindowCloseListener implements GoogleMap.OnInfoWindowCloseListener {
+
+        @Override
+        public void onInfoWindowClose(Marker marker) {
+            // Start periodic updates when user finished with reading info window
+            if (!isPeriodicUpdatesRunning) {
+                startPeriodicUpdates();
+            }
+        }
+    }
+
+    private class MarkerClickListener implements GoogleMap.OnMarkerClickListener {
+
+        @Override
+        public boolean onMarkerClick(Marker marker) {
+            User user = (User) marker.getTag();
+
+            // If user has a call message than on click this marker should display info window
+            // with this message. When info window shown we need to stop periodic updates so user
+            // will have time to read it
+            if (marker.getSnippet() != null && !marker.getSnippet().equals("")) {
+                stopPeriodicUpdates();
+            }
+
+            // Return false for default behavior -
+            // move camera to marker and show info window
+            return false;
+        }
+    }
+
+    private void showInfoWindow(User user) {
+
     }
 
     @Override
@@ -223,42 +287,97 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        // Run animation if not already running
+        if(!isAnimRunning) {
+            runAnimation();
+        }
+        // Start periodic updates if not alredy running
+        if(!isPeriodicUpdatesRunning) {
+            startPeriodicUpdates();
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        stopPeriodicUpdates();
+        stopAnimation();
+    }
+
+    public void startPeriodicUpdates(){
+        isPeriodicUpdatesRunning = true;
+
+        final Handler handler = new Handler();
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                if (isPeriodicUpdatesRunning) {
+                    redrawMap();
+                    handler.postDelayed(this, PERIODIC_UPDATE_INTERVAL);
+                }
+            }
+        });
+    }
+
+    public void  stopPeriodicUpdates() {
+        isPeriodicUpdatesRunning = false;
+    }
+
+    @Override
     public void onDestroy(){
         super.onDestroy();
-        if(locManager != null && listener != null && getContext() != null) {
-            if (ContextCompat.checkSelfPermission(
-                    getContext(),
-                    MainActivity.REQUESTED_LOCATION_PERMISSION)
-                    == PackageManager.PERMISSION_GRANTED) {
-                locManager.removeUpdates(listener);
-            }
-            locManager = null;
-            listener = null;
-        }
     }
 
     private void populateUsersArray() {
         // Add this user first
-        User thisUser = new User(1, userData.getName(), currentUserLocation.latitude,
-                currentUserLocation.longitude, userData.getAvatarImage().getAvatarImageNum(),
-                userData.getCallMessage());
-        allUsers.add(thisUser);
+        User thisUser = userData.getThisUserObject();
+        allUsers.put(thisUser, null);
         // Save thisUser to variable
         this.thisUser = thisUser;
+        // Add users from internet server
+        List<User> users = getUsersFromServer();
+        if (users != null) {
+            for (User user : users) {
+                allUsers.put(user, null);
+            }
+        }
+        // Add fake users for debug
+        addFakeUsers();
+    }
+
+    private List<User> getUsersFromServer() {
+        List<User> users = null;
+        MainActivity mainActivity = (MainActivity) getActivity();
+        if (mainActivity != null) {
+            WebServerHandler webServerHandler = mainActivity.getWebServerHandler();
+            if (webServerHandler != null) {
+                users = webServerHandler.getUsers();
+            }
+        }
+        return users;
+    }
+
+    private void addFakeUsers() {
         // This should be method for connection to server but for now
         // just populate with some fake users
-        allUsers.add(new User(2, "Jack", currentUserLocation.latitude + 0.0003,
-                currentUserLocation.longitude, 4, null));
-        allUsers.add(new User(3,"Margaret", currentUserLocation.latitude,
-                currentUserLocation.longitude + 0.0004, 7, null));
-        allUsers.add(new User(4, "Omar", currentUserLocation.latitude - 0.0003,
-                currentUserLocation.longitude - 0.0003, 10,
+        allUsers.put(new User(2, "Jack", userData.getLatitude() + 0.0003,
+                userData.getLongitude(), 4, null, null,
+                new Date().getTime()), null);
+        allUsers.put(new User(3,"Margaret", userData.getLatitude(),
+                userData.getLongitude() + 0.0004, 7, null, null,
+                new Date().getTime()), null);
+        allUsers.put(new User(4, "Omar", userData.getLatitude() - 0.0003,
+                userData.getLongitude() - 0.0003, 10,
                 "Who want to watch football and drink some beers?\n" +
-                        "Come to me if you want, bring some chips with you though"));
+                        "Come to me if you want, bring some chips with you though", null,
+                new Date().getTime()), null);
     }
 
     private void placeMarkersOnMap() {
-        for (User user : allUsers) {
+        Set<User> setOfAllUsers = allUsers.keySet();
+        for (User user : setOfAllUsers) {
             if (user.equals(thisUser)) {
                 userMarker = placeMarkerOnMap(user);
             } else {
@@ -281,7 +400,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
         String callMsg = user.callMessage;
         // Set marker image
         ImageView markerImage = markerView.findViewById(R.id.marker_image);
-        AvatarImage avatarImage = AppData.getAvatarImageAtNum(user.avatarImageNum);
+        AvatarImage avatarImage = AppData.getAvatarImage(user.avatarImageNum);
         markerImage.setImageResource(avatarImage.getAvatarImageLargeId());
         // Create Bitmap from view
         Bitmap bitmap = getBitmapFromView(markerView);
@@ -297,6 +416,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
         marker.setZIndex(USER_MARKER_Z_INDEX);
         // Add original User object as tag
         marker.setTag(user);
+        // Add marker object as value to allUsers map
+        allUsers.put(user, marker);
 
         // If user is calling create animation marker under this marker
         if (callMsg != null) {
@@ -320,60 +441,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
     }
 
 
-    private void setupUserLocationUpdates() {
-
-        // Setup location listener
-        listener = new LocationListener() {
-            @Override
-            public void onLocationChanged(Location location) {
-                double latitude = location.getLatitude();
-                double longitude = location.getLongitude();
-                currentUserLocation = new LatLng(latitude, longitude);
-            }
-
-            @Override
-            public void onStatusChanged(String provider, int status, Bundle extras) {
-
-            }
-
-            @Override
-            public void onProviderEnabled(String provider) {
-
-            }
-
-            @Override
-            public void onProviderDisabled(String provider) {
-
-            }
-        };
-
-        // Setup location manager
-        locManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
-        // Check if permission for location granted
-        if (ContextCompat.checkSelfPermission(
-                getContext(),
-                MainActivity.REQUESTED_LOCATION_PERMISSION)
-                == PackageManager.PERMISSION_GRANTED) {
-            // Get best location provider
-            String provider = locManager.getBestProvider(new Criteria(), true);
-            if (provider != null) {
-                // Set current location to last known
-                Location loc = locManager.getLastKnownLocation(provider);
-                currentUserLocation = new LatLng(loc.getLatitude(), loc.getLongitude());
-
-                // Register listener for location change
-                locManager.requestLocationUpdates(provider, 1000, 5, listener);
-            }
-        } else {
-            // Show that location permission not granted
-            Toast toast = Toast.makeText(
-                    getContext(),
-                    "Doesn't have location permission",
-                    Toast.LENGTH_LONG);
-            toast.show();
-        }
-    }
-
     public void redrawMap() {
         // Clear all map
         mMap.clear();
@@ -386,6 +453,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
         // Set User Interface for map
         UiSettings uiSettings = mMap.getUiSettings();
         uiSettings.setCompassEnabled(true);
+        uiSettings.setMapToolbarEnabled(false);
 
         // Populate Users
         populateUsersArray();
@@ -393,16 +461,14 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
         // Place markers on map
         placeMarkersOnMap();
 
-        // Run animation if not already running
-        if(!isAnimRunning) {
-            runAnimation();
-        }
+    }
 
+    public void moveCameraToThisUser() {
         // Move camera to user coordinates
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(currentUserLocation));
+        LatLng userLatLng = new LatLng(userData.getLatitude(), userData.getLongitude());
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(userLatLng));
         mMap.moveCamera(CameraUpdateFactory.zoomTo(18.0f));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(currentUserLocation));
-
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(userLatLng));
     }
 
 
@@ -435,6 +501,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
                 }
             }
         });
+    }
+
+    private void stopAnimation() {
+        isAnimRunning = false;
     }
 
     private BitmapDescriptor getCircleBitmapDescr(int radius) {
@@ -471,7 +541,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
 
         @Override
         public View getInfoWindow(Marker marker) {
-            // If marker has not have snippet than show nothing
+            // If marker doesn't have snippet than show nothing
             if (marker.getSnippet() == null) {
                 return null;
             } else {

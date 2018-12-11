@@ -38,7 +38,7 @@ public class AppData {
         return avatarImages;
     }
 
-    public static AvatarImage getAvatarImageAtNum(int position) {
+    public static AvatarImage getAvatarImage(int position) {
         return avatarImages.get(position);
     }
 }

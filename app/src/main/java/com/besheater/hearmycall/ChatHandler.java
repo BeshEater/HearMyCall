@@ -1,5 +1,6 @@
 package com.besheater.hearmycall;
 
+import android.os.Handler;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.v7.widget.LinearLayoutManager;
@@ -13,10 +14,16 @@ public class ChatHandler implements Parcelable {
     public static final Parcelable.Creator<ChatHandler> CREATOR = new MyCreator();
 
     private List<ChatMessage> messages = new ArrayList<>();
+    private UserData userData;
+    private boolean isUpdating = false;
     private MessagesAdapter messagesAdapter;
     private RecyclerView chatRecyclerView;
+    private ConnectedUserListener listener;
+    private WebServerHandler webServerHandler;
+    private final long updateInterval = 3000; //ms
 
-    public ChatHandler() {
+    public ChatHandler(UserData userData) {
+        this.userData = userData;
     }
 
     public ChatHandler(Parcel source) {
@@ -24,18 +31,17 @@ public class ChatHandler implements Parcelable {
         messages = new ArrayList<>(Arrays.asList(arr));
     }
 
-    public void createChat(RecyclerView chatRecyclerView) {
+    public void createChat(ConnectedUserListener listener,
+                           RecyclerView chatRecyclerView, WebServerHandler webServerHandler) {
         this.chatRecyclerView = chatRecyclerView;
+        this.webServerHandler = webServerHandler;
+        this.listener = listener;
 
         // Bind chat to adapter
-        messagesAdapter = new MessagesAdapter(messages);
+        messagesAdapter = new MessagesAdapter(messages, userData);
         chatRecyclerView.setAdapter(messagesAdapter);
         LinearLayoutManager layoutManager = new LinearLayoutManager(chatRecyclerView.getContext());
         chatRecyclerView.setLayoutManager(layoutManager);
-    }
-
-    public List<ChatMessage> getListOfMessages() {
-        return messages;
     }
 
     public int getNumberOfMessages() {
@@ -48,41 +54,78 @@ public class ChatHandler implements Parcelable {
 
     public boolean addMessage(ChatMessage message) {
         this.messages.add(message);
+        webServerHandler.sendMessage(message);
         messagesAdapter.notifyDataSetChanged();
         return true;
     }
 
+    public void startPeriodicUpdates () {
+        isUpdating = true;
+
+        final Handler handler = new Handler();
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                if (isUpdating) {
+                    // Update connected user
+                    listener.setConnectedUser(webServerHandler.getConnectedUser());
+
+                    // Update messages
+                    List<ChatMessage> newMessages = webServerHandler.getMessages();
+                    if (newMessages != null && newMessages.size() >= messages.size()) {
+                        messages.clear();
+                        messages.addAll(newMessages);
+                        messagesAdapter.notifyDataSetChanged();
+                    }
+                    // Request the same later
+                    handler.postDelayed(this, updateInterval);
+                }
+            }
+        });
+
+    }
+
+    public void stopPeriodicUpdates() {
+        isUpdating = false;
+    }
+
+    public boolean isChatEmpty() {
+        return messages.isEmpty();
+    }
+
     public void fillWithTestValues() {
+        User user1 = new User(2, "Jack", 53.215,
+                63.621, 4, null, null,
+                new Date().getTime());
+        User user2 = new User(3,"Margaret", 53.2157,
+                63.6215, 7, null, null,
+                new Date().getTime());
+        User user3 = new User(4, "Omar", 53.2152,
+                63.6211, 10,
+                "Who want to watch football and drink some beers?\n" +
+                        "Come to me if you want, bring some chips with you though", null,
+                new Date().getTime());
+
         messages.add(new ChatMessage(
-                "Jack",
+                user1,
                 "So what we gonna do tonight?",
-                new Date(),
-                false,
-                true));
+                new Date().getTime()));
         messages.add(new ChatMessage(
-                "Caroline",
+                user2,
                 "I don't know. Maybe drink somewhere. Or just go to the disco dance As you already mentioned that",
-                new Date(),
-                false,
-                true));
+                new Date().getTime()));
         messages.add(new ChatMessage(
-                "User",
+                userData.getThisUserObject(),
                 "I don't care",
-                new Date(),
-                true,
-                true));
+                new Date().getTime()));
         messages.add(new ChatMessage(
-                "User",
+                user1,
                 "Maybe others have some ideas?",
-                new Date(),
-                true,
-                true));
+                new Date().getTime()));
         messages.add(new ChatMessage(
-                "Alex",
+                user2,
                 "Let's go to the beach. It will be fun I think.",
-                new Date(),
-                false,
-                true));
+                new Date().getTime()));
 
     }
 
@@ -105,5 +148,9 @@ public class ChatHandler implements Parcelable {
         public ChatHandler[] newArray(int size) {
             return new ChatHandler[size];
         }
+    }
+
+    public interface ConnectedUserListener {
+        void  setConnectedUser(User user);
     }
 }

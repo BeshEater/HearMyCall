@@ -167,7 +167,7 @@ public class SettingsFragment extends Fragment {
                 int avatarImageNum = intent.getIntExtra(AvatarImageChooser.AVATAR_IMAGE_NUM, 2);
 
                 ImageView imageView = getActivity().findViewById(R.id.avatar_image);
-                AvatarImage avatarImage = AppData.getAvatarImageAtNum(avatarImageNum);
+                AvatarImage avatarImage = AppData.getAvatarImage(avatarImageNum);
                 // Save to UserData
                 userData.setAvatarImage(avatarImage);
                 // Display new avatar image

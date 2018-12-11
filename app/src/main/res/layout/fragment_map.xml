@@ -15,6 +15,18 @@
         android:layout_height="match_parent"
         tools:context=".MapFragment" />
 
+    <ImageView
+        android:id="@+id/my_location_button"
+        android:layout_width="52dp"
+        android:layout_height="52dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginRight="8dp"
+        android:layout_gravity="top|right"
+        android:background="@drawable/my_location_button"
+        android:padding="12dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/ic_my_location_black_36dp" />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -39,7 +51,8 @@
             android:minLines="6"
             android:paddingStart="16dp"
             android:paddingEnd="16dp"
-            android:visibility="invisible" />
+            android:visibility="invisible"
+            tools:text="Some call message for test"/>
 
         <LinearLayout
             android:layout_width="wrap_content"

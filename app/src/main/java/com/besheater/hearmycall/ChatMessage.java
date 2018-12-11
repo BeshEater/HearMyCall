@@ -3,57 +3,40 @@ package com.besheater.hearmycall;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import java.util.Date;
-
 public class ChatMessage implements Parcelable {
     public static final Parcelable.Creator<ChatMessage> CREATOR = new MyCreator();
 
-    private String author;
-    private String messageText;
-    private Date messageTime;
-    private boolean isUserMessage;
-    private boolean isReceived;
+    private User user;
+    private String text;
+    private long time;
 
-    public ChatMessage(String author, String messageText, Date messageTime,
-                       boolean isUserMessage, boolean isReceived) {
-        this.author = author;
-        this.messageText = messageText;
-        this.messageTime = messageTime;
-        this.isUserMessage = isUserMessage;
-        this.isReceived = isReceived;
+    public ChatMessage(User user, String text, long time) {
+        this.user = user;
+        this.text = text;
+        this.time = time;
     }
 
     public ChatMessage(Parcel source) {
         // Reconstruct from the parcel
-        author = source.readString();
-        messageText = source.readString();
-        messageTime = new Date(source.readLong());
-        isUserMessage = (Boolean) source.readValue(null);
-        isReceived = (Boolean) source.readValue(null);
+        user = source.readParcelable(null);
+        text = source.readString();
+        time = source.readLong();
     }
 
-    public boolean isUserMessage() {
-        return isUserMessage;
+    public User getUser() {
+        return user;
     }
 
     public String getAuthor() {
-        return author;
+        return user.name;
     }
 
-    public String getMessageText() {
-        return messageText;
+    public String getText() {
+        return text;
     }
 
-    public Date getMessageTime() {
-        return messageTime;
-    }
-
-    public boolean isReceived() {
-        return isReceived;
-    }
-
-    public void setReceived(boolean received) {
-        isReceived = received;
+    public long getTime() {
+        return time;
     }
 
     @Override
@@ -63,12 +46,9 @@ public class ChatMessage implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(author);
-        dest.writeString(messageText);
-        dest.writeLong(messageTime.getTime());
-        dest.writeValue(isUserMessage);
-        dest.writeValue(isReceived);
-
+        dest.writeParcelable(user, 0);
+        dest.writeString(text);
+        dest.writeLong(time);
     }
 
     public static class MyCreator implements Parcelable.Creator<ChatMessage> {
