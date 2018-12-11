@@ -162,6 +162,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
                 userData.setCallMessage(null);
                 callMsg.setText("");
 
+                // Disconnect from any user
+                userData.setConnectedUsersId(null);
+
                 // Hide done and off buttons
                 doneBtn.setVisibility(View.GONE);
                 offBtn.setVisibility(View.GONE);
@@ -331,20 +334,21 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
     }
 
     private void populateUsersArray() {
-        // Add this user first
-        User thisUser = userData.getThisUserObject();
-        allUsers.put(thisUser, null);
-        // Save thisUser to variable
-        this.thisUser = thisUser;
         // Add users from internet server
         List<User> users = getUsersFromServer();
         if (users != null) {
             for (User user : users) {
                 allUsers.put(user, null);
+                if (user.id == userData.getId()) {
+                    // Save thisUser to variable
+                    this.thisUser = user;
+                }
             }
         }
         // Add fake users for debug
         addFakeUsers();
+        this.thisUser = userData.getThisUserObject();
+        allUsers.put(userData.getThisUserObject(), null);
     }
 
     private List<User> getUsersFromServer() {
@@ -377,11 +381,13 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
 
     private void placeMarkersOnMap() {
         Set<User> setOfAllUsers = allUsers.keySet();
-        for (User user : setOfAllUsers) {
-            if (user.equals(thisUser)) {
-                userMarker = placeMarkerOnMap(user);
-            } else {
-                placeMarkerOnMap(user);
+        if (setOfAllUsers.size() > 0) {
+            for (User user : setOfAllUsers) {
+                if (thisUser != null && user.id == thisUser.id) {
+                    userMarker = placeMarkerOnMap(user);
+                } else {
+                    placeMarkerOnMap(user);
+                }
             }
         }
     }

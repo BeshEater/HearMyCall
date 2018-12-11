@@ -72,7 +72,9 @@ public class WebServerHandler extends Service {
 
             int connectedUserId = userData.getConnectedUsersId()[0];
             for (User user : users) {
-                if (user.id == connectedUserId) {
+                if (user.id == connectedUserId &&
+                        user.callMessage != null &&
+                        !user.callMessage.equals("")) {
                     connectedUser = user;
                 }
             }
@@ -263,18 +265,24 @@ public class WebServerHandler extends Service {
     }
 
     private void updateFromGetMessagesResponse(JSONObject respObj) {
-        // Clear all prev messages
-        messages.clear();
-
         try {
-            JSONArray messagesJSON = respObj.getJSONArray("messages");
-            for (int i = 0; i < messagesJSON.length(); i++) {
-                JSONObject messageJSON = (JSONObject) messagesJSON.get(i);
-                User user = parseUser(messageJSON.getJSONObject("user"));
-                ChatMessage message = new ChatMessage(user,
-                        messageJSON.getString("text"),
-                        messageJSON.getLong("time"));
-                messages.add(message);
+            if (respObj.optString("chat", "").equals("clean")) {
+                messages.clear();
+            } else {
+                // Chat contains some messages
+                List<ChatMessage> newMessages = new ArrayList<>();
+
+                JSONArray messagesJSON = respObj.getJSONArray("messages");
+                for (int i = 0; i < messagesJSON.length(); i++) {
+                    JSONObject messageJSON = (JSONObject) messagesJSON.get(i);
+                    User user = parseUser(messageJSON.getJSONObject("user"));
+                    ChatMessage message = new ChatMessage(user,
+                            messageJSON.getString("text"),
+                            messageJSON.getLong("time"));
+                    newMessages.add(message);
+                }
+                messages.clear();
+                messages.addAll(newMessages);
             }
         } catch (JSONException e) {
             e.printStackTrace();

@@ -20,7 +20,7 @@ public class UserData implements Parcelable {
     private String uniqId;
     private double latitude;
     private double longitude;
-    private int[] connectedUsersId;
+    private int[] connectedUsersId = null;
 
     public UserData() {
         name = "";

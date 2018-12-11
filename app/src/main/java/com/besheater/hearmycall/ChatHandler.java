@@ -49,14 +49,19 @@ public class ChatHandler implements Parcelable {
     }
 
     public void scrollChatToBottom() {
-        chatRecyclerView.smoothScrollToPosition(getNumberOfMessages() - 1);
+        if (getNumberOfMessages() > 2) {
+            chatRecyclerView.smoothScrollToPosition(getNumberOfMessages() - 1);
+        }
     }
 
     public boolean addMessage(ChatMessage message) {
-        this.messages.add(message);
-        webServerHandler.sendMessage(message);
-        messagesAdapter.notifyDataSetChanged();
-        return true;
+        if (userData.getConnectedUsersId() != null) {
+            this.messages.add(message);
+            webServerHandler.sendMessage(message);
+            messagesAdapter.notifyDataSetChanged();
+            return true;
+        }
+        return false;
     }
 
     public void startPeriodicUpdates () {
@@ -72,7 +77,11 @@ public class ChatHandler implements Parcelable {
 
                     // Update messages
                     List<ChatMessage> newMessages = webServerHandler.getMessages();
-                    if (newMessages != null && newMessages.size() >= messages.size()) {
+                    if (newMessages.size() == 0 ||
+                            userData.getConnectedUsersId() == null) {
+                        messages.clear();
+                        messagesAdapter.notifyDataSetChanged();
+                    } else if (newMessages.size() > 0 && newMessages.size() >= messages.size()) {
                         messages.clear();
                         messages.addAll(newMessages);
                         messagesAdapter.notifyDataSetChanged();
