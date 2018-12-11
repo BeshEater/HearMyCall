@@ -30,11 +30,11 @@ import java.util.List;
 
 public class WebServerHandler extends Service {
     private final IBinder binder = new WebServerBinder();
-    private final String urlGetUsers = "http://192.168.1.39:8080/GetUsers";
-    private final String urlGetMessages = "http://192.168.1.39:8080/GetMessages";
-    private final String urlAddMessage = "http://192.168.1.39:8080/AddMessage";
+    private final String urlGetUsers = "https://hearmycallserver.appspot.com/GetUsers";
+    private final String urlGetMessages = "https://hearmycallserver.appspot.com/GetMessages";
+    private final String urlAddMessage = "https://hearmycallserver.appspot.com//AddMessage";
     private final String uniqIdCookieName = "uniqId";
-    private final long serverUpdateInterval = 10000; // in ms
+    private final long serverUpdateInterval = 6000; // in ms
     private URI uriGetUsers;
     private URI uriGetMessages;
     private URI uriAddMessage;
@@ -209,7 +209,11 @@ public class WebServerHandler extends Service {
             @Override
             public void onResponse(JSONObject response) {
                 //updateUsersList(response);
-                updateFromGetMessagesResponse(response);
+                if (userData.getConnectedUsersId() != null) {
+                    updateFromGetMessagesResponse(response);
+                } else {
+                    messages.clear();
+                }
             }
         };
 
@@ -231,6 +235,9 @@ public class WebServerHandler extends Service {
             @Override
             public void run() {
                 if (isMessagesUpdating) {
+                    if (userData.getConnectedUsersId() == null) {
+                        messages.clear();
+                    }
                     JSONObject thisUserJSONobj = getThisUserJSONobj();
 
                     // Construct request with User object
@@ -262,6 +269,10 @@ public class WebServerHandler extends Service {
             e.printStackTrace();
         }
         return thisUserJSONobj;
+    }
+
+    public void clearMessages() {
+        messages.clear();
     }
 
     private void updateFromGetMessagesResponse(JSONObject respObj) {

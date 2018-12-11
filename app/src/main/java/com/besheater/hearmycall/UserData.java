@@ -101,6 +101,7 @@ public class UserData implements Parcelable {
 
     public void setCallMessage(String callMessage) {
         this.callMessage = callMessage;
+        connectedUsersId = new int[] {id};
     }
 
     public ChatHandler getChatHandler() {

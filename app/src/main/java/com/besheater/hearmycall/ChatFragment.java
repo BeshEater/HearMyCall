@@ -22,6 +22,7 @@ import java.util.Date;
 public class ChatFragment extends Fragment implements ChatHandler.ConnectedUserListener {
 
     private UserData userData;
+    private ChatHandler chatHandler;
 
     public ChatFragment() {
         //  Required empty public constructor
@@ -38,7 +39,7 @@ public class ChatFragment extends Fragment implements ChatHandler.ConnectedUserL
         userData = mainActivity.getUserData();
 
         // Get ChatHandler object reference
-        final ChatHandler chatHandler = userData.getChatHandler();
+        chatHandler = userData.getChatHandler();
 
         // Create Chat
         RecyclerView chatRecyclerView = view.findViewById(R.id.chat_recycler);
@@ -71,7 +72,19 @@ public class ChatFragment extends Fragment implements ChatHandler.ConnectedUserL
 
     }
 
+    @Override
+    public void onDestroy() {
+
+        super.onDestroy();
+        if (chatHandler != null) {
+            chatHandler.stopPeriodicUpdates();
+        }
+    }
+
     public void setConnectedUser(User user) {
+        if (getActivity() == null) {
+            return;
+        }
         TextView chatInfo = getActivity().findViewById(R.id.chat_info_text);
         TextView userName = getActivity().findViewById(R.id.chat_user_name);
         ImageView avatarImage = getActivity().findViewById(R.id.chat_avatar_image);
@@ -81,13 +94,18 @@ public class ChatFragment extends Fragment implements ChatHandler.ConnectedUserL
                 avatarImage != null) {
 
             if (user != null) {
-                chatInfo.setText("You are connected to:");
-                userName.setVisibility(View.VISIBLE);
-                userName.setText(user.name);
-                avatarImage.setVisibility(View.VISIBLE);
-                avatarImage.setImageResource(AppData.getAvatarImage(user.avatarImageNum).getAvatarImageLargeId());
+                if (user.id == userData.getId()) {
+                    chatInfo.setText(R.string.chat_info_text_calling);
+                } else {
+                    chatInfo.setText(R.string.chat_info_connected_to);
+                    userName.setVisibility(View.VISIBLE);
+                    userName.setText(user.name);
+                    avatarImage.setVisibility(View.VISIBLE);
+                    avatarImage.setImageResource(AppData.getAvatarImage(user.avatarImageNum)
+                            .getAvatarImageLargeId());
+                }
             } else {
-                chatInfo.setText("You are not connected");
+                chatInfo.setText(R.string.chat_info_not_connected);
                 userName.setVisibility(View.GONE);
                 avatarImage.setVisibility(View.GONE);
             }

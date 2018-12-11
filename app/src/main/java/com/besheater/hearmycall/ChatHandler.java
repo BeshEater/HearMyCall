@@ -20,7 +20,7 @@ public class ChatHandler implements Parcelable {
     private RecyclerView chatRecyclerView;
     private ConnectedUserListener listener;
     private WebServerHandler webServerHandler;
-    private final long updateInterval = 3000; //ms
+    private final long updateInterval = 1000; //ms
 
     public ChatHandler(UserData userData) {
         this.userData = userData;
@@ -72,22 +72,30 @@ public class ChatHandler implements Parcelable {
             @Override
             public void run() {
                 if (isUpdating) {
-                    // Update connected user
-                    listener.setConnectedUser(webServerHandler.getConnectedUser());
+                    // Check if all objects exist
+                    if (listener != null &&
+                            messages != null &&
+                            userData != null &&
+                            messagesAdapter != null &&
+                            webServerHandler != null) {
 
-                    // Update messages
-                    List<ChatMessage> newMessages = webServerHandler.getMessages();
-                    if (newMessages.size() == 0 ||
-                            userData.getConnectedUsersId() == null) {
-                        messages.clear();
-                        messagesAdapter.notifyDataSetChanged();
-                    } else if (newMessages.size() > 0 && newMessages.size() >= messages.size()) {
-                        messages.clear();
-                        messages.addAll(newMessages);
-                        messagesAdapter.notifyDataSetChanged();
+                        // Update connected user
+                        listener.setConnectedUser(webServerHandler.getConnectedUser());
+
+                        // Update messages
+                        List<ChatMessage> newMessages = webServerHandler.getMessages();
+                        if (newMessages.size() == 0 ||
+                                userData.getConnectedUsersId() == null) {
+                            messages.clear();
+                            messagesAdapter.notifyDataSetChanged();
+                        } else if (newMessages.size() > messages.size()) {
+                            messages.clear();
+                            messages.addAll(newMessages);
+                            messagesAdapter.notifyDataSetChanged();
+                        }
+                        // Request the same later
+                        handler.postDelayed(this, updateInterval);
                     }
-                    // Request the same later
-                    handler.postDelayed(this, updateInterval);
                 }
             }
         });

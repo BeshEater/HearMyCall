@@ -30,4 +30,7 @@
     <!-- Strings in chat tab -->
     <string name="message_text_hint">Набрать сообщение</string>
     <string name="permission_denied">Вы должны предоставить разрешение на определение местоположения для правильной работы</string>
+    <string name="chat_info_text_calling">Сейчас ты ПРИЗЫВАЕШЬ</string>
+    <string name="chat_info_connected_to">Ты присоединился к:</string>
+    <string name="chat_info_not_connected">Не присоединился</string>
 </resources>

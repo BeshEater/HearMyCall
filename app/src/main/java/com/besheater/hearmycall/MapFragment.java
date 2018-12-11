@@ -21,6 +21,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -29,11 +30,17 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.Dash;
+import com.google.android.gms.maps.model.Dot;
+import com.google.android.gms.maps.model.Gap;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.PatternItem;
+import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -227,16 +234,55 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
         moveCameraToThisUser();
     }
 
+    private void showOffBtn() {
+
+        EditText callMsg = getActivity().findViewById(R.id.call_message);
+        ImageView doneBtn = getActivity().findViewById(R.id.call_message_done_button);
+        ImageView offBtn = getActivity().findViewById(R.id.call_message_off_button);
+        ImageView callBtn = getActivity().findViewById(R.id.call_button);
+
+        // Hide keyboard and message field
+        InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(callMsg.getWindowToken(), 0);
+        callMsg.setVisibility(View.INVISIBLE);
+
+        // Hide buttons
+        doneBtn.setVisibility(View.GONE);
+        callBtn.setVisibility(View.GONE);
+
+        // Show off button
+        offBtn.setVisibility(View.VISIBLE);
+
+    }
+
     private class InfoWindowClickListener implements GoogleMap.OnInfoWindowClickListener {
 
         @Override
         public void onInfoWindowClick(Marker marker) {
-            // Connect to this user
-            User user = (User) marker.getTag();
-            if (user != null && user.id != 0) {
-                int[] connectedUser = {user.id};
-                userData.setConnectedUsersId(connectedUser);
+            // Check if not calling already
+            if (userData.getCallMessage() == null) {
+                // Delete old messages
+                MainActivity mainActivity = (MainActivity) getActivity();
+                WebServerHandler webServerHandler = mainActivity.getWebServerHandler();
+                if (webServerHandler != null) {
+                    webServerHandler.clearMessages();
+                }
+
+                // Connect to this user
+                User user = (User) marker.getTag();
+                if (user != null && user.id != 0) {
+                    int[] connectedUser = {user.id};
+                    userData.setConnectedUsersId(connectedUser);
+                }
+                showOffBtn();
+            } else {
+                // Need to stop calling first
+                Toast toast = Toast.makeText(getContext(),
+                        "Stop calling first",
+                        Toast.LENGTH_SHORT);
+                toast.show();
             }
+
             redrawMap();
         }
     }
@@ -271,10 +317,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
         }
     }
 
-    private void showInfoWindow(User user) {
-
-    }
-
     @Override
     public void onDestroyView() {
         super.onDestroyView();
@@ -287,6 +329,40 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
         if (mMap != null && getContext() != null) {
             redrawMap();
         }
+    }
+
+    public void coonectUsers() {
+        List<User> users = new ArrayList<>(allUsers.keySet());
+
+        if (users != null && users.size() > 0) {
+            Map<Integer, User> usersIdMap= new HashMap<>();
+            for (User user : users) {
+                usersIdMap.put(user.id, user);
+            }
+
+            for (User user : users) {
+                if (user.connectedUsersId != null && user.connectedUsersId.length > 0) {
+                    User secondUser = usersIdMap.get(user.connectedUsersId[0]);
+                    if (secondUser != null) {
+                        LatLng p1 = new LatLng(user.latitude, user.longitude);
+                        LatLng p2 = new LatLng(secondUser.latitude, secondUser.longitude);
+                        drawLine(p1, p2);
+                    }
+                }
+            }
+        }
+
+    }
+
+    public void drawLine(LatLng p1, LatLng p2) {
+        PolylineOptions polylineOptions = new PolylineOptions();
+        polylineOptions.add(p1, p2);
+        List<PatternItem> pattern = Arrays.<PatternItem>asList(
+                new Dot(), new Gap(15), new Dash(100), new Gap(15));
+        polylineOptions.pattern(pattern)
+                .color(Color.parseColor("#00574B"))
+                .width(12);
+        mMap.addPolyline(polylineOptions);
     }
 
     @Override
@@ -346,9 +422,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
             }
         }
         // Add fake users for debug
-        addFakeUsers();
-        this.thisUser = userData.getThisUserObject();
-        allUsers.put(userData.getThisUserObject(), null);
+        //addFakeUsers();
+        //this.thisUser = userData.getThisUserObject();
+        //allUsers.put(userData.getThisUserObject(), null);
     }
 
     private List<User> getUsersFromServer() {
@@ -366,13 +442,13 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
     private void addFakeUsers() {
         // This should be method for connection to server but for now
         // just populate with some fake users
-        allUsers.put(new User(2, "Jack", userData.getLatitude() + 0.0003,
-                userData.getLongitude(), 4, null, null,
+        allUsers.put(new User(997, "Jack", userData.getLatitude() + 0.0003,
+                userData.getLongitude(), 4, null, new int[] {999},
                 new Date().getTime()), null);
-        allUsers.put(new User(3,"Margaret", userData.getLatitude(),
+        allUsers.put(new User(998,"Margaret", userData.getLatitude(),
                 userData.getLongitude() + 0.0004, 7, null, null,
                 new Date().getTime()), null);
-        allUsers.put(new User(4, "Omar", userData.getLatitude() - 0.0003,
+        allUsers.put(new User(999, "Omar", userData.getLatitude() - 0.0003,
                 userData.getLongitude() - 0.0003, 10,
                 "Who want to watch football and drink some beers?\n" +
                         "Come to me if you want, bring some chips with you though", null,
@@ -466,6 +542,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
 
         // Place markers on map
         placeMarkersOnMap();
+
+        // Connect users
+        coonectUsers();
 
     }
 

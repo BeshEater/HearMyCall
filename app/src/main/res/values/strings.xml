@@ -30,4 +30,7 @@
     <!-- Strings in chat tab -->
     <string name="message_text_hint">Type a message</string>
     <string name="permission_denied">You need to grant location permission for correct work</string>
+    <string name="chat_info_text_calling">You are CALLING</string>
+    <string name="chat_info_connected_to">You are connected to:</string>
+    <string name="chat_info_not_connected">You are not connected</string>
 </resources>
