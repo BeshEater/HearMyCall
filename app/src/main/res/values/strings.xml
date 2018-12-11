@@ -4,7 +4,7 @@
     <!-- Strings in settings tab -->
     <string name="name_hint">Name of your Avatar</string>
     <string name="avatar_image">Your avatar image</string>
-    <string name="avatar_hint">^ Tap image to chose ^</string>
+    <string name="avatar_hint">^ Tap image to choose ^</string>
     <string name="call_button">Look Around</string>
     <string name="invisible">Invisible for others</string>
     <string name="channel_selection">Select channel:</string>

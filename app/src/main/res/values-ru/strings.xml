@@ -2,14 +2,14 @@
     <string name="app_name">Hear My Call</string>
     <string name="title_activity_maps">Карта</string>
     <!-- Strings in settings tab -->
-    <string name="name_hint">Name of your Avatar</string>
-    <string name="avatar_image">Your avatar image</string>
-    <string name="avatar_hint">^ Tap image to chose ^</string>
-    <string name="call_button">Look Around</string>
-    <string name="invisible">Invisible for others</string>
-    <string name="channel_selection">Select channel:</string>
-    <string name="receive_notifications">Receive notifications</string>
-    <string name="in_radius">In radius:</string>
+    <string name="name_hint">Ваше имя</string>
+    <string name="avatar_image">Ваш аватар</string>
+    <string name="avatar_hint">^ Нажмите, чтобы выбрать ^</string>
+    <string name="call_button">Осмотреться</string>
+    <string name="invisible">Невидим для других</string>
+    <string name="channel_selection">Выбрать канал</string>
+    <string name="receive_notifications">Получать уведомления</string>
+    <string name="in_radius">В радиусе</string>
     <string name="radius_50m">50m</string>
     <string name="radius_100m">100m</string>
     <string name="radius_200m">200m</string>
@@ -17,17 +17,17 @@
     <string name="radius_1km">1km</string>
     <string-array name="channels">
         <item>Все</item>
-        <item>Dating</item>
-        <item>Party</item>
-        <item>Help</item>
+        <item>Знакомства</item>
+        <item>Вечеринка</item>
+        <item>Помощь</item>
     </string-array>
     <!-- Tab names -->
     <string name="settings_tab">Настройки</string>
-    <string name="map_tab">Map</string>
-    <string name="chat_tab">Chat</string>
+    <string name="map_tab">Карта</string>
+    <string name="chat_tab">Чат</string>
     <!-- Strings in map tab -->
-    <string name="call_message_info_window_hint">^ Tap to Accept ^</string>
+    <string name="call_message_info_window_hint">^ Нажмите,чтобы принять ^</string>
     <!-- Strings in chat tab -->
-    <string name="message_text_hint">Type a message</string>
-    <string name="permission_denied">You need to grant location permission for correct work</string>
+    <string name="message_text_hint">Набрать сообщение</string>
+    <string name="permission_denied">Вы должны предоставить разрешение на определение местоположения для правильной работы</string>
 </resources>
