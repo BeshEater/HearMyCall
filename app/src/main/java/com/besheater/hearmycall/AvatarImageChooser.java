@@ -38,6 +38,4 @@ public class AvatarImageChooser extends AppCompatActivity {
             }
         });
     }
-
-
 }
